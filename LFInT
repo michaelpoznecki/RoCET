@@ -84,7 +84,7 @@ def curl(url):
 
 def pwd():
     command = "pwd"
-    url = args.url+"&"+args.variable+"="+command
+    url = args.url + args.variable+"="+command
     temp = curl(url)
     parsedString = parse(temp)
     parsedString = parsedString.splitlines()
@@ -93,7 +93,7 @@ def pwd():
 
 def run_cmd(command):
     command = command.replace(" ", "%20")
-    url = args.url+"&"+args.variable+"="+command
+    url = args.url + args.variable+"="+command
     temp = curl(url)
     parsedString = parse(temp)
     print parsedString
